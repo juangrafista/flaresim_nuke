@@ -104,8 +104,13 @@ target_compile_options(NukeFlareSim PRIVATE
 if(WIN32)
     target_link_libraries(NukeFlareSim PRIVATE
         "${NUKE_LIB_DIR}/DDImage.lib"
-        "${NUKE_LIB_DIR}/Ndk.lib"
     )
+    # Ndk.lib was introduced in Nuke 14; not present in Nuke 13.
+    if(EXISTS "${NUKE_LIB_DIR}/Ndk.lib")
+        target_link_libraries(NukeFlareSim PRIVATE
+            "${NUKE_LIB_DIR}/Ndk.lib"
+        )
+    endif()
 else()
     target_link_libraries(NukeFlareSim PRIVATE
         "${NUKE_LIB_DIR}/libDDImage.so"
