@@ -12,7 +12,11 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # The plugin uses only basic CUDA features (atomicAdd, standard math) and
 # requires nothing from CUDA 13.  Building against 12.x lowers the minimum
 # driver requirement to 525+, covering the vast majority of users.
-set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 75 80 86 89 90 120)  # Maxwell–Blackwell; requires CUDA 12.8+
+# Default arch list covers Maxwell through Blackwell.  sm_120 requires CUDA 12.8+.
+# Override on the command line: -DCMAKE_CUDA_ARCHITECTURES="50;52;60;61;70;75;80;86;89;90"
+if(NOT CMAKE_CUDA_ARCHITECTURES)
+    set(CMAKE_CUDA_ARCHITECTURES 50 52 60 61 70 75 80 86 89 90 120)
+endif()
 
 # Static CUDA runtime — bakes cudart into the plugin binary so users do not
 # need a CUDA runtime installed.  On Windows we keep Shared to avoid any
@@ -80,8 +84,15 @@ if(MSVC)
     )
 else()
     target_compile_options(NukeFlareSim PRIVATE
-        $<$<COMPILE_LANGUAGE:CXX>:-Wall -Wno-deprecated-declarations -fPIC>
+        $<$<COMPILE_LANGUAGE:CXX>:-Wall -Wno-deprecated-declarations -Wno-unused-variable -fPIC>
     )
+    # -Wno-class-memaccess was added in GCC 8; suppress it only when available.
+    # (Nuke NDK headers trigger this warning via memcpy inside VertexContext.)
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 8.0)
+        target_compile_options(NukeFlareSim PRIVATE
+            $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
+        )
+    endif()
 endif()
 
 # CUDA: allow constexpr functions to be used on device without __device__ tags;

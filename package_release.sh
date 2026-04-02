@@ -14,7 +14,7 @@
 
 set -euo pipefail
 
-VERSION="1.0.0"
+VERSION=""
 NUKE_VERSIONS="13 14 15 16 17"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DIST_DIR="${SCRIPT_DIR}/dist"
@@ -28,10 +28,15 @@ while [[ $# -gt 0 ]]; do
         --out-dir)       OUT_DIR="$2";       shift 2 ;;
         *)
             echo "Unknown argument: $1" >&2
-            echo "Usage: $0 [--version 1.0.0] [--nuke-versions \"13 14 15 16 17\"] [--dist-dir ./dist] [--out-dir ./release_packages]" >&2
+            echo "Usage: $0 --version 1.1.0 [--nuke-versions \"13 14 15 16 17\"] [--dist-dir ./dist] [--out-dir ./release_packages]" >&2
             exit 1 ;;
     esac
 done
+
+if [[ -z "${VERSION}" ]]; then
+    echo "Error: --version is required (e.g. $0 --version 1.1.0)" >&2
+    exit 1
+fi
 
 mkdir -p "${OUT_DIR}"
 
@@ -67,7 +72,11 @@ for NV in $NUKE_VERSIONS; do
 
     # --- Zip it ---
     rm -f "${ZIP_PATH}"
-    (cd "${STAGE}" && zip -r "${ZIP_PATH}" .)
+    if command -v zip &>/dev/null; then
+        (cd "${STAGE}" && zip -r "${ZIP_PATH}" .)
+    else
+        (cd "${STAGE}" && python3 -m zipfile -c "${ZIP_PATH}" .)
+    fi
 
     SIZE_KB=$(du -k "${ZIP_PATH}" | cut -f1)
     SIZE_MB=$(awk "BEGIN { printf \"%.1f\", ${SIZE_KB}/1024 }")

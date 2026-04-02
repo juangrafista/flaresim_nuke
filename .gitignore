@@ -12,6 +12,9 @@ dist/
 # Claude AI session data
 .claude/
 
+# Windows Zone.Identifier metadata files (created when downloading on Windows)
+*.Identifier
+
 # Personal / dev artefacts
 compare/
 original_code/

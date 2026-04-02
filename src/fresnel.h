@@ -6,6 +6,17 @@
 #include <cmath>
 #include <algorithm>
 
+// std::clamp was added to <algorithm> in C++17 but GCC 6 shipped an incomplete
+// C++17 stdlib that lacks it.  Provide a fallback for old toolchains.
+#if defined(__GNUC__) && __GNUC__ < 7 && !defined(__clang__)
+namespace std {
+    template<class T>
+    constexpr const T& clamp(const T& v, const T& lo, const T& hi) {
+        return v < lo ? lo : (v > hi ? hi : v);
+    }
+}
+#endif
+
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
