@@ -12,7 +12,7 @@
 
 param(
     [string] $Version      = "1.0.0",
-    [int[]]  $NukeVersions = @(14, 15, 16, 17),
+    [int[]]  $NukeVersions = @(13, 14, 15, 16, 17),
     [string] $DistDir      = "$PSScriptRoot\dist",
     [string] $OutDir       = "$PSScriptRoot\release_packages"
 )
