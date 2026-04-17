@@ -19,3 +19,9 @@ try:
     FlareSim_LensBrowser.register()
 except Exception as e:
     nuke.warning(f'FlareSim: could not load lens browser: {e}')
+
+try:
+    import FlareSim_LensSection
+    FlareSim_LensSection.register()
+except Exception as e:
+    nuke.warning(f'FlareSim: could not load lens cross-section viewer: {e}')
